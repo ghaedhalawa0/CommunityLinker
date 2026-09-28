@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -48,6 +49,41 @@ class User extends Authenticatable
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * @return HasMany<Message, $this>
+     */
+    public function sentMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function hasUnreadMessages(): bool
+    {
+        return Conversation::query()
+            ->where(function (Builder $conversations): void {
+                $conversations
+                    ->where(function (Builder $conversation): void {
+                        $conversation
+                            ->where('user_one_id', $this->id)
+                            ->whereHas('messages', function (Builder $messages): void {
+                                $messages
+                                    ->where('sender_id', '!=', $this->id)
+                                    ->whereColumn('messages.id', '>', 'conversations.user_one_last_read_message_id');
+                            });
+                    })
+                    ->orWhere(function (Builder $conversation): void {
+                        $conversation
+                            ->where('user_two_id', $this->id)
+                            ->whereHas('messages', function (Builder $messages): void {
+                                $messages
+                                    ->where('sender_id', '!=', $this->id)
+                                    ->whereColumn('messages.id', '>', 'conversations.user_two_last_read_message_id');
+                            });
+                    });
+            })
+            ->exists();
     }
 
     /**
