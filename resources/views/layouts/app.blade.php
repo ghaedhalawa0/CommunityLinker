@@ -21,6 +21,12 @@
                     @auth
                         <a class="top-nav-link nav-member-only {{ request()->routeIs('home') ? 'is-active' : '' }}" href="{{ route('home') }}">Home</a>
                         <a class="top-nav-link nav-member-only {{ request()->routeIs('profile*', 'profiles.show') ? 'is-active' : '' }}" href="{{ route('profiles.show', ['user' => auth()->user()->username]) }}">My profile</a>
+                        <a class="top-nav-link nav-member-only {{ request()->routeIs('messages.*') ? 'is-active' : '' }}" href="{{ route('messages.index') }}" data-messages-link data-unread-url="{{ route('messages.unread') }}">
+                            Messages
+                            @if ($hasUnreadMessages)
+                                <span class="nav-unread-dot" data-unread-indicator role="img" aria-label="Unread messages"></span>
+                            @endif
+                        </a>
                         <a class="button button-small button-primary nav-post-action" href="{{ route('posts.create') }}">Write a post <span aria-hidden="true">+</span></a>
                     <div class="account-menu">
                         @include('partials.avatar', ['user' => auth()->user(), 'size' => 'sm'])
