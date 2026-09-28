@@ -40,6 +40,8 @@
                 </div>
                 @if ($isOwner)
                     <a class="button button-outline" href="{{ route('profile.edit') }}">Edit profile</a>
+                @elseif (auth()->check())
+                    <a class="button button-outline profile-message-action" href="{{ route('messages.show', ['user' => $user->username]) }}">Message</a>
                 @endif
             </header>
 
