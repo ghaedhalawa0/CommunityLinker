@@ -74,6 +74,19 @@
 
     @if ($post->status === \App\Models\Post::STATUS_PUBLISHED || auth()->user()?->is($post->user))
         <div class="post-actions">
+            @if ($post->status === \App\Models\Post::STATUS_PUBLISHED && (! auth()->check() || ! auth()->user()->is($post->user)))
+                <a
+                    class="icon-button post-chat-action"
+                    href="{{ route('messages.show', ['user' => $post->user->username]) }}"
+                    aria-label="Message {{ $post->user->name }}"
+                    title="Message {{ $post->user->name }}"
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 2 1.2-4.2A7.5 7.5 0 1 1 20 11.5Z" />
+                    </svg>
+                </a>
+            @endif
+
             @auth
                 @if ($post->status === \App\Models\Post::STATUS_PUBLISHED)
                     <form method="POST" action="{{ route('posts.react', $post) }}" class="reaction-inline-form" data-reaction-form>
